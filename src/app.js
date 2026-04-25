@@ -1,16 +1,17 @@
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import connectDb from './config/connectDb.js'
+import authRoute from './routes/authentication.js'
+
 
 const app = express()
-connectDb()
 
 // MiddleWares
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
 }));
+
 app.use(cookieParser())
 app.use(express.json())
 
@@ -18,6 +19,10 @@ app.use(express.json())
 app.get('/test', (req, res) => {
     res.send('Test Passed')
 })
+
+// Authentication route
+app.use('/auth',authRoute)
+
 
 
 export default app
