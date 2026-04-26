@@ -6,11 +6,12 @@ import authRoute from './routes/authentication.js'
 
 const app = express()
 
-// MiddleWares
-app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-}));
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:5173");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+  });
+
 
 app.use(cookieParser())
 app.use(express.json())
@@ -22,6 +23,10 @@ app.get('/test', (req, res) => {
 
 // Authentication route
 app.use('/auth',authRoute)
+
+app.get("/", (req, res) => {
+    res.send("Server is working ✅");
+  });
 
 
 
