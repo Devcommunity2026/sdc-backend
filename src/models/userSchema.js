@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import counter from "./counterSchema.js";
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -7,7 +8,8 @@ const userSchema = new mongoose.Schema({
     },
     userId: {
         type: Number,
-        default: 1
+        required: true,
+        unique: true
     },
     email: {
         type: String,
@@ -20,14 +22,40 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["admin", "moderator", "user"],
+        enum: ["admin", "moderator", "mentor", "team", "user"],
         default: "user"
+    },
+    profileImage: {
+        type: String,
+    },
+    linkedIn: {
+        type: String,
+    },
+    Position: {
+        type: String,
     },
     isBanned: {
         type: Boolean,
         default: false
     }
 }, { timestamps: true });
+
+userSchema.pre('validate', async function () {
+    console.log(this)
+    if (this.isNew) {
+        try {
+            const count = await counter.findOneAndUpdate(
+                { id: 'userCounter' },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true }
+            )
+            this.userId = count.seq
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+})
 
 const User = mongoose.model("User", userSchema);
 export default User
