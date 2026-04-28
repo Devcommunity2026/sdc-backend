@@ -1,4 +1,5 @@
 import user from '../models/userSchema.js'
+import counter from '../models/counterSchema.js';
 import { sendOtp } from './mailController.js'
 import { sendToken, sendChangePasswordToken, decodeToken } from './jwtController.js';
 import bcrypt from "bcrypt";
@@ -57,15 +58,15 @@ export const verifyUser = async (req, res, next) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
+        
         const newUser = await user.create({
             name,
             email,
             password: hashedPassword,
             role: process.env.OWNER_EMAIL === email ? "admin" : "user"
         });
-
-        otpStore.delete(email);
+        if (newUser)
+            otpStore.delete(email);
 
         return sendToken(res, newUser);
     } catch (error) {
