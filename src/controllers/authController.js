@@ -65,6 +65,7 @@ export const verifyUser = async (req, res, next) => {
             password: hashedPassword,
             role: process.env.OWNER_EMAIL === email ? "admin" : "user"
         });
+        
         if (newUser)
             otpStore.delete(email);
 

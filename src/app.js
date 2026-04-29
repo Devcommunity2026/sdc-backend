@@ -2,7 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import authRoute from './routes/authentication.js'
-
+import profileRoute from './routes/profile.js'
+import errorHandler from './middlewares/errorHandlerMiddleware.js'
 
 const app = express()
 
@@ -15,14 +16,17 @@ app.use(cors({
 app.use(cookieParser())
 app.use(express.json())
 
-// test Route to check Server status 
+
 app.get('/test', (req, res) => {
     res.send('Test Passed')
-})
-
-// Authentication route
-app.use('/auth',authRoute)
+})// test Route to check Server status 
 
 
+app.use('/auth', authRoute) // Authentication route
+app.use('/profile', profileRoute) // profile route
+
+
+// middleware which will handel Errors
+app.use(errorHandler)
 
 export default app
