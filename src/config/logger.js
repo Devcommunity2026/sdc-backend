@@ -20,6 +20,7 @@ const logger = createLogger({
         new transports.Console({
             level: 'info',
             format: combine(
+                errors({ stack: true }),
                 label({ label: 'app' }),
                 timestamp(),
                 myErrorFormat
@@ -39,9 +40,9 @@ const logger = createLogger({
             filename: './logs/error.log',
             level: 'error',
             format: combine(
+                errors({ stack: true }),
                 label({ label: 'app' }),
                 timestamp(),
-                errors({ stack: true }),
                 myErrorFormat
             ),
         })
