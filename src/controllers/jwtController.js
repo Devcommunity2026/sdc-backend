@@ -1,5 +1,6 @@
 import User from "../models/userSchema.js";
 import jwt from "jsonwebtoken";
+import logger from "../config/logger.js";
 
 export const sendToken = async (res, user) => {
     try {
@@ -30,8 +31,12 @@ export const sendToken = async (res, user) => {
             success: true,
             message: "Login successful"
         });
-
+        logger.info(`userId:${user.userId} logged In`)
     } catch (error) {
+        logger.error('Failed to send authTokens', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'unable to login'
@@ -41,7 +46,6 @@ export const sendToken = async (res, user) => {
 
 export const sendChangePasswordToken = async (res, user) => {
     try {
-
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -69,6 +73,10 @@ export const sendChangePasswordToken = async (res, user) => {
         });
 
     } catch (error) {
+        logger.error('Failed to send changePassToken', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'Unable to create session'
@@ -84,7 +92,10 @@ export const decodeToken = async (token) => {
             data: decoded
         }
     } catch (error) {
-        console.log(error)
+        logger.error('Failed to decode authTokens', {
+            message: error.message,
+            stack: error.stack
+        });
         return {
             success: false,
         }
