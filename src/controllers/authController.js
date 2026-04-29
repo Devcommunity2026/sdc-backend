@@ -1,9 +1,12 @@
 import user from '../models/userSchema.js'
+import counter from '../models/counterSchema.js';
 import { sendOtp } from './mailController.js'
 import { sendToken, sendChangePasswordToken, decodeToken } from './jwtController.js';
 import bcrypt from "bcrypt";
+import logger from '../config/logger.js'
 
-const otpStore = new Map()
+
+const otpStore = new Map()  // this map will store the otp for the user and will expire after the expiryTime
 
 export const registerUser = async (req, res, next) => {
     try {
@@ -18,8 +21,11 @@ export const registerUser = async (req, res, next) => {
             )
         }
         return sendOtp(otpStore, email, password, name, res, next, false)
-    } catch (err) {
-        console.log(error);
+    } catch (error) {
+        logger.error('User registy failed', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'Unable to send OTP'
@@ -65,11 +71,17 @@ export const verifyUser = async (req, res, next) => {
             role: process.env.OWNER_EMAIL === email ? "admin" : "user"
         });
 
-        otpStore.delete(email);
+        if (newUser) {
+            otpStore.delete(email);
+            logger.info(`userId:${newUser.userId} registed`)
+        }
 
         return sendToken(res, newUser);
     } catch (error) {
-        console.log(error);
+        logger.error('User OTP verification failed', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'Unable to create ID'
@@ -105,7 +117,10 @@ export const loginUser = async (req, res, next) => {
         return sendToken(res, userData)
 
     } catch (error) {
-        console.log(error)
+        logger.error('User login failed', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'unable to login'
@@ -126,10 +141,13 @@ export const forgotPassword = async (req, res, next) => {
             })
         }
 
-        return sendOtp(otpStore, email, undefined, undefined, res, next, changePassword)
 
+        return sendOtp(otpStore, email, undefined, undefined, res, next, changePassword)
     } catch (error) {
-        console.log(error)
+        logger.error('User forgot password failed', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'Unable to send OTP'
@@ -178,14 +196,15 @@ export const verifyOTP = async (req, res, next) => {
         return sendChangePasswordToken(res, userData)
 
     } catch (error) {
-        console.log(error);
+        logger.error('User forgotPassword otp verification failed', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'Unable to verify OTP'
         })
     }
-
-
 }
 
 export const changePassword = async (req, res, next) => {
@@ -219,13 +238,18 @@ export const changePassword = async (req, res, next) => {
 
         const updatedUser = await user.updateOne({ email: email }, { $set: { password: hashedPassword } })
 
+        logger.info(`userId:${updatedUser.userId} changed Password`)
+
         return res.status(200).json({
             success: true,
             message: 'Password changed successfully'
         })
     }
     catch (error) {
-        console.log(error)
+        logger.error('User changePassword failed', {
+            message: error.message,
+            stack: error.stack
+        });
         return res.status(500).json({
             success: false,
             message: 'Unable to change password'

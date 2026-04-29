@@ -1,5 +1,5 @@
 import transporter from '../config/mailer.js'
-
+import logger from '../config/logger.js';
 // changePassword is used to know weather the sendOtp is called from the forgot passowrd or the register route
 
 export const sendOtp = async (otpStore, email, password, name, res, next, changePassword) => {
@@ -25,6 +25,7 @@ export const sendOtp = async (otpStore, email, password, name, res, next, change
             });
         }
 
+
         return res.status(200).json({
             success: true,
             message: 'OTP generated (check console)'
@@ -32,6 +33,13 @@ export const sendOtp = async (otpStore, email, password, name, res, next, change
 
     } catch (err) {
         console.log(err);
+
+    }
+    catch (error) {
+        logger.error('Failed to send Email', {
+            message: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             message: 'OTP generation failed'
