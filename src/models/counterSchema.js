@@ -1,12 +1,15 @@
-import mongoose, { model } from "mongoose";
+import mongoose from "mongoose";
 
-const counterSchema = mongoose.Schema({
-    id: String,
-    seq: {
-        type: Number,
-        default: 0,
-    }
-})
+const counterSchema = new mongoose.Schema({
+  _id: {
+    type: String,   // ✅ MUST BE STRING (THIS FIXES YOUR ERROR)
+  },
+  seq: {
+    type: Number,
+    default: 0,
+  },
+});
 
-const counter = mongoose.model("Counter", counterSchema)
-export default counter
+const Counter = mongoose.model("Counter", counterSchema);
+
+export default Counter;

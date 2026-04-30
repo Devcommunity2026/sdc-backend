@@ -1,258 +1,253 @@
-import user from '../models/userSchema.js'
-import counter from '../models/counterSchema.js';
-import { sendOtp } from './mailController.js'
-import { sendToken, sendChangePasswordToken, decodeToken } from './jwtController.js';
+import user from '../models/userSchema.js';
+import { sendOtp } from './mailController.js';
+import { sendToken, sendChangePasswordToken } from './jwtController.js';
 import bcrypt from "bcrypt";
-import logger from '../config/logger.js'
+
+const otpStore = new Map();
 
 
-const otpStore = new Map()  // this map will store the otp for the user and will expire after the expiryTime
+// ================= REGISTER =================
+export const registerUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-export const registerUser = async (req, res, next) => {
-    try {
-        const { name, email, password } = req.body
-        let exisiting = await user.findOne({ email })
-        if (exisiting) {
-            return res.status(409).json(
-                {
-                    success: false,
-                    message: "User already exists"
-                }
-            )
-        }
-        return sendOtp(otpStore, email, password, name, res, next, false)
-    } catch (error) {
-        logger.error('User registy failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to send OTP'
-        })
+    const cleanEmail = email.trim().toLowerCase();
+
+    const existing = await user.findOne({ email: cleanEmail });
+
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: "User already exists"
+      });
     }
-}
 
-export const verifyUser = async (req, res, next) => {
-    try {
-        const { email, userOtp } = req.body;
+    // 🔥 IMPORTANT: remove old OTP if exists
+    otpStore.delete(cleanEmail);
 
-        const data = otpStore.get(email);
+    return sendOtp(
+      otpStore,
+      cleanEmail,
+      password,
+      name,
+      res,
+      null,
+      false
+    );
 
-        if (!data) {
-            return res.status(400).json({
-                success: false,
-                message: "OTP not found"
-            });
-        }
-
-        const { password, expiresAt, otp, name } = data;
-
-        if (expiresAt < Date.now()) {
-            return res.status(401).json({
-                success: false,
-                message: "OTP expired"
-            });
-        }
-
-        if (otp != userOtp) {
-            return res.status(401).json({
-                success: false,
-                message: "OTP mismatched"
-            });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = await user.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: process.env.OWNER_EMAIL === email ? "admin" : "user"
-        });
-
-        if (newUser) {
-            otpStore.delete(email);
-            logger.info(`userId:${newUser.userId} registed`)
-        }
-
-        return sendToken(res, newUser);
-    } catch (error) {
-        logger.error('User OTP verification failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to create ID'
-        })
-    }
+  } catch (error) {
+    console.log("🔥 REGISTER ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to send OTP'
+    });
+  }
 };
 
-export const loginUser = async (req, res, next) => {
-    try {
-        const { email, password } = req.body
 
-        const userData = await user.findOne({ email })
+// ================= VERIFY USER =================
+export const verifyUser = async (req, res) => {
+  try {
+    const { email, userOtp } = req.body;
 
-        if (!userData) {
-            return res.status(401).json({
-                success: false,
-                message: 'Wrong password'
-            })
-        }
+    const cleanEmail = email.trim().toLowerCase();
 
-        const isMatch = await bcrypt.compare(
-            password,
-            userData.password
-        );
+    const data = otpStore.get(cleanEmail);
 
-        if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid credentials"
-            });
-        }
+    console.log("👉 VERIFY CALLED");
+    console.log("Email:", cleanEmail);
+    console.log("Entered OTP:", `"${userOtp}"`);
+    console.log("Stored Data:", data);
 
-        return sendToken(res, userData)
-
-    } catch (error) {
-        logger.error('User login failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'unable to login'
-        });
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not found"
+      });
     }
-}
 
-export const forgotPassword = async (req, res, next) => {
-    try {
-        const { email } = req.body
+    const { password, expiresAt, otp, name } = data;
 
-        const userData = await user.findOne({ email })
+    console.log("Stored OTP:", `"${otp}"`);
 
-        if (!userData) {
-            return res.status(401).json({
-                success: false,
-                message: 'User not found'
-            })
-        }
-
-
-        return sendOtp(otpStore, email, undefined, undefined, res, next, changePassword)
-    } catch (error) {
-        logger.error('User forgot password failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to send OTP'
-        });
+    // 🔥 expiry check
+    if (expiresAt < Date.now()) {
+      otpStore.delete(cleanEmail);
+      return res.status(401).json({
+        success: false,
+        message: "OTP expired"
+      });
     }
-}
 
-export const verifyOTP = async (req, res, next) => {
-    try {
-        const { email, userOtp } = req.body
-
-        const userData = await user.findOne({ email })
-
-        if (!userData) {
-            return res.status(401).json({
-                success: false,
-                message: 'User not found'
-            })
-        }
-
-        const data = otpStore.get(email);
-
-        if (!data) {
-            return res.status(400).json({
-                success: false,
-                message: "OTP not found"
-            });
-        }
-
-        const { expiresAt, otp } = data;
-
-        if (expiresAt < Date.now()) {
-            return res.status(401).json({
-                success: false,
-                message: "OTP expired"
-            });
-        }
-        if (String(otp) !== String(userOtp)) {
-            return res.status(401).json({
-                success: false,
-                message: "OTP mismatched"
-            });
-        }
-        // starting 10 minutes session
-
-        return sendChangePasswordToken(res, userData)
-
-    } catch (error) {
-        logger.error('User forgotPassword otp verification failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to verify OTP'
-        })
+    // 🔥 SAFE comparison
+    if (String(otp).trim() !== String(userOtp).trim()) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP mismatched"
+      });
     }
-}
 
-export const changePassword = async (req, res, next) => {
-    try {
-        const cookies = req.cookies
-        const { email, newPassword } = req.body
+    // 🔥 hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!cookies.passToken) {
-            return res.status(401).json({
-                success: false,
-                message: 'Tokens Expired'
-            })
-        }
-        const decode = await decodeToken(cookies.passToken)
+    const newUser = await user.create({
+      name,
+      email: cleanEmail,
+      password: hashedPassword,
+      role: process.env.OWNER_EMAIL === cleanEmail ? "admin" : "user"
+    });
 
-        if (!decode.success) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid Token'
-            })
-        }
+    // 🔥 remove OTP after success
+    otpStore.delete(cleanEmail);
 
-        if (decode.data.email != email) {
-            return res.status(401).json({
-                success: false,
-                message: 'token mismatched'
-            })
-        }
+    return sendToken(res, newUser);
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+  } catch (error) {
+    console.log("🔥 VERIFY ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Verification failed"
+    });
+  }
+};
 
-        const updatedUser = await user.updateOne({ email: email }, { $set: { password: hashedPassword } })
 
-        logger.info(`userId:${updatedUser.userId} changed Password`)
+// ================= LOGIN =================
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-        return res.status(200).json({
-            success: true,
-            message: 'Password changed successfully'
-        })
+    const cleanEmail = email.trim().toLowerCase();
+
+    const userData = await user.findOne({ email: cleanEmail });
+
+    if (!userData) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
     }
-    catch (error) {
-        logger.error('User changePassword failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        return res.status(500).json({
-            success: false,
-            message: 'Unable to change password'
-        })
+
+    const isMatch = await bcrypt.compare(password, userData.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
     }
-}
+
+    return sendToken(res, userData);
+
+  } catch (error) {
+    console.log("🔥 LOGIN ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to login'
+    });
+  }
+};
+
+
+// ================= FORGOT PASSWORD =================
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    const userData = await user.findOne({ email: cleanEmail });
+
+    if (!userData) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    otpStore.delete(cleanEmail);
+
+    return sendOtp(otpStore, cleanEmail, undefined, undefined, res, null, true);
+
+  } catch (error) {
+    console.log("🔥 FORGOT ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to send OTP'
+    });
+  }
+};
+
+
+// ================= VERIFY OTP (FOR PASSWORD RESET) =================
+export const verifyOTP = async (req, res) => {
+  try {
+    const { email, userOtp } = req.body;
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    const data = otpStore.get(cleanEmail);
+
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP not found"
+      });
+    }
+
+    const { expiresAt, otp } = data;
+
+    if (expiresAt < Date.now()) {
+      otpStore.delete(cleanEmail);
+      return res.status(401).json({
+        success: false,
+        message: "OTP expired"
+      });
+    }
+
+    if (String(otp).trim() !== String(userOtp).trim()) {
+      return res.status(401).json({
+        success: false,
+        message: "OTP mismatched"
+      });
+    }
+
+    return sendChangePasswordToken(res, { email: cleanEmail });
+
+  } catch (error) {
+    console.log("🔥 VERIFY OTP ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to verify OTP'
+    });
+  }
+};
+
+
+// ================= CHANGE PASSWORD =================
+export const changePassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await user.updateOne(
+      { email: cleanEmail },
+      { $set: { password: hashedPassword } }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    console.log("🔥 CHANGE PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to change password'
+    });
+  }
+};

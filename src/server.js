@@ -1,10 +1,13 @@
-import "dotenv/config";   
+import dotenv from "dotenv";
 import app from "./app.js";
 import connectDb from "./config/connectDb.js";
-const PORT = process.env.PORT || 5000;
 
-connectDb().then(()=>{
-    app.listen(PORT, () => {
-        console.log('Listening on port ', process.env.PORT)
-    })
-})
+dotenv.config();
+
+const PORT = process.env.PORT || 3000;
+
+connectDb().then(() => {
+  app.listen(PORT, () => {
+    console.log("Listening on port", PORT);
+  });
+});

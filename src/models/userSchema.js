@@ -41,21 +41,16 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 userSchema.pre('validate', async function () {
-    console.log(this)
     if (this.isNew) {
-        try {
-            const count = await counter.findOneAndUpdate(
-                { id: 'userCounter' },
-                { $inc: { seq: 1 } },
-                { new: true, upsert: true }
-            )
-            this.userId = count.seq
-        }
-        catch (error) {
-            console.log(error)
-        }
+        const count = await counter.findOneAndUpdate(
+            { _id: 'userCounter' },   // ✅ MUST MATCH STRING
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+
+        this.userId = count.seq;
     }
-})
+});
 
 const User = mongoose.model("User", userSchema);
-export default User
+export default User;
