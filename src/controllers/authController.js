@@ -4,9 +4,10 @@ import { sendOtp } from './mailController.js'
 import { sendToken, sendChangePasswordToken, decodeToken } from './jwtController.js';
 import bcrypt from "bcrypt";
 import logger from '../config/logger.js'
+import store from '../utils/memoryStore.js';
+import errorClass from '../utils/errorClass.js';
 
-
-const otpStore = new Map()  // this map will store the otp for the user and will expire after the expiryTime
+const otpStore = store.otp  // this map will store the otp for the user and will expire after the expiryTime
 
 export const registerUser = async (req, res, next) => {
     try {
@@ -22,14 +23,8 @@ export const registerUser = async (req, res, next) => {
         }
         return sendOtp(otpStore, email, password, name, res, next, false)
     } catch (error) {
-        logger.error('User registy failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to send OTP'
-        })
+        const err = new errorClass(false, 500, 'Unable to send OTP', 'User registy failed', error)
+        next(err)
     }
 }
 
@@ -78,14 +73,8 @@ export const verifyUser = async (req, res, next) => {
 
         return sendToken(res, newUser);
     } catch (error) {
-        logger.error('User OTP verification failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to create ID'
-        })
+        const err = new errorClass(false, 500, 'Unable to create ID', 'User OTP verification failed', error)
+        next(err)
     }
 };
 
@@ -98,7 +87,7 @@ export const loginUser = async (req, res, next) => {
         if (!userData) {
             return res.status(401).json({
                 success: false,
-                message: 'Wrong password'
+                message: 'Email or password not exists'
             })
         }
 
@@ -117,14 +106,8 @@ export const loginUser = async (req, res, next) => {
         return sendToken(res, userData)
 
     } catch (error) {
-        logger.error('User login failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'unable to login'
-        });
+        const err = new errorClass(false, 500, 'unable to login', 'User login failed', error)
+        next(err)
     }
 }
 
@@ -144,14 +127,8 @@ export const forgotPassword = async (req, res, next) => {
 
         return sendOtp(otpStore, email, undefined, undefined, res, next, changePassword)
     } catch (error) {
-        logger.error('User forgot password failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to send OTP'
-        });
+        const err = new errorClass(false, 500, 'Unable to send OTP', 'User forgot password failed', error)
+        next(err)
     }
 }
 
@@ -173,7 +150,7 @@ export const verifyOTP = async (req, res, next) => {
         if (!data) {
             return res.status(400).json({
                 success: false,
-                message: "OTP not found"
+                message: "Something went wrong"
             });
         }
 
@@ -196,14 +173,8 @@ export const verifyOTP = async (req, res, next) => {
         return sendChangePasswordToken(res, userData)
 
     } catch (error) {
-        logger.error('User forgotPassword otp verification failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        res.status(500).json({
-            success: false,
-            message: 'Unable to verify OTP'
-        })
+        const err = new errorClass(false, 500, 'Unable to verify OTP', 'User forgotPassword otp verification failed', error)
+        next(err)
     }
 }
 
@@ -230,7 +201,7 @@ export const changePassword = async (req, res, next) => {
         if (decode.data.email != email) {
             return res.status(401).json({
                 success: false,
-                message: 'token mismatched'
+                message: 'Something went wrong'
             })
         }
 
@@ -246,13 +217,7 @@ export const changePassword = async (req, res, next) => {
         })
     }
     catch (error) {
-        logger.error('User changePassword failed', {
-            message: error.message,
-            stack: error.stack
-        });
-        return res.status(500).json({
-            success: false,
-            message: 'Unable to change password'
-        })
+        const err = new errorClass(false, 500, 'Unable to change password', 'User changePassword failed', error)
+        next(err)
     }
 }
