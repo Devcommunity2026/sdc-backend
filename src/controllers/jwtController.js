@@ -31,7 +31,7 @@ export const sendToken = async (res, user) => {
             success: true,
             message: "Login successful"
         });
-        logger.info(`userId:${user.userId} logged In`)
+        logger.info(`userId:${user.userId} | logged In`)
     } catch (error) {
         const err = new errorClass(false, 500, 'unable to login', 'Failed to send authTokens', error)
         next(err)
