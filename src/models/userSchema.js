@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
     },
     linkedIn: {
         type: String,
+        default: null
     },
     Position: {
         type: String,

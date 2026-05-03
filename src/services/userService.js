@@ -18,3 +18,24 @@ export const getUserDetailsByEmail = async (email) => {
         }
     }
 }
+
+export const editDetailsByEmail = async (email, key, value) => {
+    try {
+        const details = await User.findOneAndUpdate(
+            { email: email },
+            { $set: { [key]: value } },
+            { new: true }
+        )
+        return {
+            success: true,
+            data: details
+        }
+    } catch (error) {
+        const err = new errorClass(false, 500, 'Something went wrong', `email:${email} Update Failed`, error)
+        return {
+            success: false,
+            data: null,
+            error: err
+        }
+    }
+}
