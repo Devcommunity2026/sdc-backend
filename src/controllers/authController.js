@@ -1,6 +1,6 @@
 import user from '../models/userSchema.js'
 import counter from '../models/counterSchema.js';
-import { sendOtp } from './mailController.js'
+import { sendOtp } from '../services/mailService.js'
 import { sendToken, sendChangePasswordToken, decodeToken } from './jwtController.js';
 import bcrypt from "bcrypt";
 import logger from '../config/logger.js'
@@ -68,7 +68,7 @@ export const verifyUser = async (req, res, next) => {
 
         if (newUser) {
             otpStore.delete(email);
-            logger.info(`userId:${newUser.userId} registed`)
+            logger.info(`userId:${newUser.userId} | registed`)
         }
 
         return sendToken(res, newUser);
@@ -209,7 +209,7 @@ export const changePassword = async (req, res, next) => {
 
         const updatedUser = await user.updateOne({ email: email }, { $set: { password: hashedPassword } })
 
-        logger.info(`userId:${updatedUser.userId} changed Password`)
+        logger.info(`userId:${updatedUser.userId} | changed Password`)
 
         return res.status(200).json({
             success: true,

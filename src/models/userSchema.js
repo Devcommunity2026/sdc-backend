@@ -27,12 +27,14 @@ const userSchema = new mongoose.Schema({
     },
     profileImage: {
         type: String,
+        default: null
     },
     linkedIn: {
         type: String,
     },
     Position: {
         type: String,
+        default: null
     },
     isBanned: {
         type: Boolean,
