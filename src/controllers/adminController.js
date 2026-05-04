@@ -41,6 +41,14 @@ export const editRole = async (req, res, next) => {
             });
         }
 
+        if (email === process.env.OWNER_EMAIL) {
+
+            logger.info(`userId:${details.userId} | Try to edited the role of owner`)
+            return res.status(400).json({
+                success: false,
+                message: "something went wrong"
+            });
+        }
         if (roleDescription.length > 200) {
             return res.status(400).json({
                 success: false,
@@ -71,7 +79,54 @@ export const editRole = async (req, res, next) => {
 
         logger.info(`userId:${details.userId} | Edited the role of ${email} to ${role}`)
     } catch (error) {
-        const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} Admin page access  failed`, error)
+        const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} role edit failed`, error)
+        next(err)
+    }
+}
+
+export const banEdit = async (req, res, next) => {
+    try {
+        const details = req.details
+        const email = req.body.email
+        const operation = req.body.operation
+
+
+        if (!email || !operation || !["add", "remove"].includes(operation)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Input"
+            });
+        }
+        if (email === process.env.OWNER_EMAIL) {
+            logger.info(`userId:${details.userId} | Try to Ban the  owner`)
+            return res.status(400).json({
+                success: false,
+                message: "something went wrong"
+            });
+        }
+        const updatedData = await editDetailsByEmail(email, {
+            isBanned: operation === "add"
+        })
+
+        if (!updatedData.success) {
+            next(updatedData.error)
+        }
+
+        if (!updatedData.data) {
+            return res.status(400).json({
+                success: false,
+                message: "User Not Found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Ban of user is ${operation}ed`
+        })
+
+        logger.info(`userId:${details.userId} |  ${operation}ed ban of ${email}`)
+    } catch (error) {
+        const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} Ban edit failed`, error)
         next(err)
     }
 }
