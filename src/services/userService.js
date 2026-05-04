@@ -19,11 +19,11 @@ export const getUserDetailsByEmail = async (email) => {
     }
 }
 
-export const editDetailsByEmail = async (email, key, value) => {
+export const editDetailsByEmail = async (email, obj) => {
     try {
         const details = await User.findOneAndUpdate(
             { email: email },
-            { $set: { [key]: value } },
+            { $set: obj },
             { new: true }
         )
         return {
