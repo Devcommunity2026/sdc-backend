@@ -23,6 +23,7 @@ function filterResponseData(details) {
         role: details.role,
         linkedIn: details.linkedIn,
         profileImage: details.profileImage,
+        roleDescription: details.roleDescription,
         Position: details.Position,
     }
 }
@@ -49,7 +50,7 @@ export const editProfile = async (req, res, next) => {
         const reqData = req.body
         const toBeEdited = req.body.edit
         const editValue = req.body.value
-        const canEdit = ['name', 'linkedIn']
+        const canEdit = ['name', 'linkedIn', 'roleDescription']
 
         if (!toBeEdited in canEdit) {
             return res.status(400).json({
@@ -65,14 +66,26 @@ export const editProfile = async (req, res, next) => {
             });
         }
 
-        const query = await editDetailsByEmail(details.email, toBeEdited, editValue)
+        if (toBeEdited == 'roleDescription' && !details.roleDescription) {
+            return res.status(400).json({
+                success: false,
+                message: `Initial Role Description are given By the Admin further you can edit`
+            });
+        }
+        if (toBeEdited == 'roleDescription' && editValue.length > 200) {
+            return res.status(400).json({
+                success: false,
+                message: `Description is to large`
+            });
+        }
+        const query = await editDetailsByEmail(details.email, { [toBeEdited]: editValue })
         if (!query.success) {
             next(query.error)
         }
-
+        console.log(query.data)
         res.status(200).json({
             success: true,
-            data: filterResponseData(details)
+            data: filterResponseData(query.data)
         })
 
         logger.info(`userId:${details.toBeEdited} | ${toBeEdited} edited to ${editValue}`)
