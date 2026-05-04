@@ -123,8 +123,6 @@ export const forgotPassword = async (req, res, next) => {
                 message: 'User not found'
             })
         }
-
-
         return sendOtp(otpStore, email, undefined, undefined, res, next, changePassword)
     } catch (error) {
         const err = new errorClass(false, 500, 'Unable to send OTP', 'User forgot password failed', error)

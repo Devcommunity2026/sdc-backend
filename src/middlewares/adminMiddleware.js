@@ -1,8 +1,8 @@
-import errorClass from "../utils/errorClass,.js";
-import getUserDetailsByEmail from '../services/userService.js'
+import errorClass from "../utils/errorClass.js";
+import {getUserDetailsByEmail} from '../services/userService.js'
 import { decodeToken } from "../controllers/jwtController.js";
 
-const adminMiddleware = (req, res, next) => {
+const adminMiddleware = async(req, res, next) => {
     try {
         const userToken = req.cookies?.token;
 
@@ -32,7 +32,7 @@ const adminMiddleware = (req, res, next) => {
                 message: "No user found"
             });
         }
-        if (!Details.data.role != "admin") {
+        if (Details.data.role != "admin") {
             return res.status(401).json({
                 success: false,
                 message: "Access denied"
