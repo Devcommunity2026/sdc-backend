@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser'
 import authRoute from './routes/authentication.js'
 import profileRoute from './routes/profile.js'
 import errorHandler from './middlewares/errorHandlerMiddleware.js'
+import adminRoute from './routes/admin.js'
 
 const app = express()
 
@@ -24,6 +25,7 @@ app.get('/test', (req, res) => {
 
 app.use('/auth', authRoute) // Authentication route
 app.use('/profile', profileRoute) // profile route
+app.use('/admin', adminRoute) // admin route
 
 
 // middleware which will handel Errors

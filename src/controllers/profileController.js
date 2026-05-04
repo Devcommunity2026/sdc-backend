@@ -16,7 +16,7 @@ function isLinkedInProfile(url) {
     }
 }
 
-function filterResponseData(details) {
+export function filterResponseData(details) {
     return {
         name: details.name,
         email: details.email,
