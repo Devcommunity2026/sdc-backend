@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const eventSchema = mongoose.Schema({
+const projectSchema = mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -9,11 +9,11 @@ const eventSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    date: {
-        type: Date,
+    github: {
+        type: String,
         required: true
     },
-    form: {
+    live: {
         type: String,
         required: true
     },
@@ -25,7 +25,8 @@ const eventSchema = mongoose.Schema({
         type: String,
         required: true
     }
-})
+});
 
-const event = mongoose.model("Event", eventSchema)
-export default event
+const project = mongoose.model("Project", projectSchema);
+
+export default project;

@@ -1,13 +1,82 @@
-import express from "express"
-import roleMiddleware from "../middlewares/roleMiddleware.js"
-import { addEvent } from "../controllers/editContent.js"
-import { deleteEvent } from "../controllers/editContent.js"
-import { imageParser } from "../middlewares/uploadMiddleware.js"
+import express from "express";
 
-const router = express.Router()
-router.use(roleMiddleware(['moderator', 'admin']))
+import roleMiddleware from "../middlewares/roleMiddleware.js";
 
-router.post('/addEvent', imageParser.single('image'), addEvent)
-router.post('/removeEvent', deleteEvent)
+import {
+    addEvent,
+    deleteEvent,
 
-export default router
+    addProject,
+    deleteProject,
+
+    addCoreTeamMember,
+    removeCoreTeamMember,
+
+    addMentor,
+    removeMentor
+
+} from "../controllers/editContent.js";
+
+import { imageParser } from "../middlewares/uploadMiddleware.js";
+
+const router = express.Router();
+
+router.use(roleMiddleware(['moderator', 'admin']));
+
+
+// ================= EVENT =================
+
+router.post(
+    '/addEvent',
+    imageParser.single('image'),
+    addEvent
+);
+
+router.post(
+    '/removeEvent',
+    deleteEvent
+);
+
+
+// ================= PROJECT =================
+
+router.post(
+    '/addProject',
+    imageParser.single('image'),
+    addProject
+);
+
+router.post(
+    '/removeProject',
+    deleteProject
+);
+
+
+// ================= CORE TEAM =================
+
+router.post(
+    '/addCoreTeamMember',
+    imageParser.single('image'),
+    addCoreTeamMember
+);
+
+router.post(
+    '/removeCoreTeamMember',
+    removeCoreTeamMember
+);
+
+
+// ================= MENTOR =================
+
+router.post(
+    '/addMentor',
+    imageParser.single('image'),
+    addMentor
+);
+
+router.post(
+    '/removeMentor',
+    removeMentor
+);
+
+export default router;
