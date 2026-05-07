@@ -37,7 +37,7 @@ export const shareProfile = async (req, res, next) => {
                 data: filterResponseData(details)
             }
         )
-        logger.info(`userId:${details.userId} | Details are shared`)
+        logger.info(`userId:${req.details.userId} | Details are shared`)
     } catch (error) {
         const err = new errorClass(false, 500, 'Unable to share the Data', `userId:${req.details.userId} profile sharing failed`, error)
         next(err)
@@ -88,7 +88,7 @@ export const editProfile = async (req, res, next) => {
             data: filterResponseData(query.data)
         })
 
-        logger.info(`userId:${details.toBeEdited} | ${toBeEdited} edited to ${editValue}`)
+        logger.info(`userId:${req.details.toBeEdited} | ${toBeEdited} edited to ${editValue}`)
     } catch (error) {
         const err = new errorClass(false, 500, 'Unable to edit the Data', `userId:${req.details.userId} Edit ${req.body.edit} failed`, error)
         next(err)

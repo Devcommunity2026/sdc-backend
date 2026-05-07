@@ -11,4 +11,5 @@ router.use(authCheck)
 router.get('/me', shareProfile);
 
 router.post('/edit', editProfile);
+
 export default router

@@ -5,6 +5,8 @@ import authRoute from './routes/authentication.js'
 import profileRoute from './routes/profile.js'
 import errorHandler from './middlewares/errorHandlerMiddleware.js'
 import adminRoute from './routes/admin.js'
+import editRoute from './routes/editContent.js'
+import bodyParser from 'body-parser'
 
 const app = express()
 
@@ -14,7 +16,9 @@ app.use(cors({
     credentials: true
 }));
 
+
 app.use(cookieParser())
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
 
 
@@ -26,6 +30,7 @@ app.get('/test', (req, res) => {
 app.use('/auth', authRoute) // Authentication route
 app.use('/profile', profileRoute) // profile route
 app.use('/admin', adminRoute) // admin route
+app.use('/edit', editRoute) // edit content only moderator and admin can do that 
 
 
 // middleware which will handel Errors
