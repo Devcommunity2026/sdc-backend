@@ -1,12 +1,12 @@
 import express from 'express'
-import adminMiddleware from '../middlewares/adminMiddleware.js'
+import roleMiddleware from '../middlewares/roleMiddleware.js'
 import { getAccess } from '../controllers/adminController.js'
 import { editRole } from '../controllers/adminController.js'
 import { banEdit } from '../controllers/adminController.js'
 
 const router = express.Router()
 
-router.use(adminMiddleware)
+router.use(roleMiddleware(["admin"]))
 router.get('/getAccess', getAccess)
 router.post('/editRole', editRole)
 router.post('/banEdit', banEdit)

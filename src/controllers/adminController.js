@@ -10,9 +10,9 @@ export const getAccess = (req, res, next) => {
             success: true,
             message: 'access provided'
         })
-        logger.info(`userId:${details.userId} | Admin page access granted`)
+        logger.info(`userId:${req.details.userId} | Admin page access granted`)
     } catch (error) {
-        logger.info(`userId:${details.userId} | Admin page access Denied`)
+        logger.info(`userId:${req.details.userId} | Admin page access Denied`)
 
         const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} Admin page access  failed`, error)
         next(err)
@@ -32,6 +32,7 @@ export const editRole = async (req, res, next) => {
                 message: "Invalid Input"
             });
         }
+        
         logger.info(email)
 
         if (!email || (role != "user" && roleDescription.length == 0)) {
@@ -43,7 +44,7 @@ export const editRole = async (req, res, next) => {
 
         if (email === process.env.OWNER_EMAIL) {
 
-            logger.info(`userId:${details.userId} | Try to edited the role of owner`)
+            logger.info(`userId:${req.details.userId} | Try to edited the role of owner`)
             return res.status(400).json({
                 success: false,
                 message: "something went wrong"
@@ -77,7 +78,7 @@ export const editRole = async (req, res, next) => {
             message: 'User Role Updated'
         })
 
-        logger.info(`userId:${details.userId} | Edited the role of ${email} to ${role}`)
+        logger.info(`userId:${req.details.userId} | Edited the role of ${email} to ${role}`)
     } catch (error) {
         const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} role edit failed`, error)
         next(err)
@@ -98,7 +99,7 @@ export const banEdit = async (req, res, next) => {
             });
         }
         if (email === process.env.OWNER_EMAIL) {
-            logger.info(`userId:${details.userId} | Try to Ban the  owner`)
+            logger.info(`userId:${req.details.userId} | Try to Ban the  owner`)
             return res.status(400).json({
                 success: false,
                 message: "something went wrong"
@@ -124,7 +125,7 @@ export const banEdit = async (req, res, next) => {
             message: `Ban of user is ${operation}ed`
         })
 
-        logger.info(`userId:${details.userId} |  ${operation}ed ban of ${email}`)
+        logger.info(`userId:${req.details.userId} |  ${operation}ed ban of ${email}`)
     } catch (error) {
         const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} Ban edit failed`, error)
         next(err)
