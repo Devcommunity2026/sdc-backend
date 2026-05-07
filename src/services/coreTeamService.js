@@ -89,3 +89,14 @@ export const removeCoreTeamMemberData = async (
         next(err);
     }
 };
+
+export const getMemberCount = async () => {
+    try {
+        const totalCoreTeam = await coreTeam.countDocuments();
+        return  totalCoreTeam
+        
+    } catch (error) {
+        return  null
+    }
+}
+

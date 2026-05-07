@@ -93,6 +93,7 @@ export const addProject = async (req, res, next) => {
             description: userData.description,
             github: userData.github,
             live: userData.live,
+            techStack: JSON.parse(userData.techStack),
             thumbnail: req.file.path
         };
 

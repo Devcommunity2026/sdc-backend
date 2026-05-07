@@ -77,3 +77,13 @@ export const removeMentorData = async (
         next(err);
     }
 };
+
+export const getMentorCount = async () => {
+    try {
+        const totalMentors = await mentor.countDocuments();
+        return totalMentors
+
+    } catch (error) {
+        return null
+    }
+}

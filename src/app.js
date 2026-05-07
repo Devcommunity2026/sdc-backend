@@ -6,6 +6,7 @@ import profileRoute from './routes/profile.js'
 import errorHandler from './middlewares/errorHandlerMiddleware.js'
 import adminRoute from './routes/admin.js'
 import editRoute from './routes/editContent.js'
+import modRoute from './routes/moderatorContent.js'
 import bodyParser from 'body-parser'
 
 const app = express()
@@ -31,6 +32,7 @@ app.use('/auth', authRoute) // Authentication route
 app.use('/profile', profileRoute) // profile route
 app.use('/admin', adminRoute) // admin route
 app.use('/edit', editRoute) // edit content only moderator and admin can do that 
+app.use('/mod', modRoute) // get details of the Admin/Moderator Page
 
 
 // middleware which will handel Errors

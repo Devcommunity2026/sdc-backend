@@ -5,22 +5,32 @@ const projectSchema = mongoose.Schema({
         type: String,
         required: true
     },
+
     subHeading: {
         type: String,
         required: true
     },
+
     github: {
         type: String,
         required: true
     },
+
     live: {
         type: String,
         required: true
     },
+
+    techStack: {
+        type: [String],
+        required: true
+    },
+
     thumbnail: {
         type: String,
         required: true
     },
+
     description: {
         type: String,
         required: true
