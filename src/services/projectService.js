@@ -55,3 +55,45 @@ export const deleteProjectData = async (id, req, res, next) => {
         next(err);
     }
 };
+
+export const getPaginatedProjects = async (page = 1, limit = 10) => {
+    try {
+        const skip = (page - 1) * limit;
+
+        const projects = await project.aggregate([
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ]);
+
+        const totalProject = await project.countDocuments();
+
+        return {
+            success: true,
+            data: projects,
+            pagination: {
+                total: totalProject,
+                currentPage: page,
+                totalPages: Math.ceil(totalProject / limit),
+                limit
+            }
+        };
+
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            "Something went wrong",
+            "Failed to fetch paginated Project",
+            error
+        );
+        return {
+            success: false,
+            data: null,
+            error: err
+        };
+    }
+};
