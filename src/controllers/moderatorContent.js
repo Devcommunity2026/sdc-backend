@@ -2,6 +2,7 @@ import { getUsesCount } from "../services/userService.js";
 import { getMentorCount } from "../services/mentorService.js";
 import { getMemberCount } from "../services/coreTeamService.js";
 import { getPaginatedUsers } from "../services/userService.js";
+import { getPaginatedTeam } from "../services/coreTeamService.js";
 import errorClass from "../utils/errorClass.js";
 
 export const getCount = async (req, res, next) => {
@@ -51,6 +52,56 @@ export const getUsers = async (req, res, next) => {
             500,
             'Unable To Fetch Users',
             `userId:${req.details.userId} fetch users failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getTeam = async (req, res, next) => {
+    try {
+
+        const result = await getPaginatedTeam();
+
+        if (!result.success) {
+            return next(result.error);
+        }
+
+        res.status(200).json(result);
+
+    } catch (error) {
+
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Team',
+            `userId:${req.details.userId} fetch Team failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getMentor = async (req, res, next) => {
+    try {
+
+        const result = await getPaginatedTeam();
+
+        if (!result.success) {
+            return next(result.error);
+        }
+
+        res.status(200).json(result);
+
+    } catch (error) {
+
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Mentor',
+            `userId:${req.details.userId} fetch Mentor failed`,
             error
         );
 

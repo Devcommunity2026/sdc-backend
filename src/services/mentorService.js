@@ -87,3 +87,22 @@ export const getMentorCount = async () => {
         return null
     }
 }
+
+export const getPaginatedMentor = async () => {
+    try {
+
+        const mentors = await mentor.find();
+
+        return {
+            success: true,
+            data: mentors
+        };
+
+    } catch (error) {
+
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
