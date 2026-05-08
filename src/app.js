@@ -7,6 +7,7 @@ import errorHandler from './middlewares/errorHandlerMiddleware.js'
 import adminRoute from './routes/admin.js'
 import editRoute from './routes/editContent.js'
 import modRoute from './routes/moderatorContent.js'
+import publicRoute from './routes/public.js'
 import bodyParser from 'body-parser'
 
 const app = express()
@@ -16,7 +17,6 @@ app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
 }));
-
 
 app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,6 +33,7 @@ app.use('/profile', profileRoute) // profile route
 app.use('/admin', adminRoute) // admin route
 app.use('/edit', editRoute) // edit content only moderator and admin can do that 
 app.use('/mod', modRoute) // get details of the Admin/Moderator Page
+app.use('/public', publicRoute) // get details of the Admin/Moderator Page
 
 
 // middleware which will handel Errors
