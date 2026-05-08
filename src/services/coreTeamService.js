@@ -93,10 +93,28 @@ export const removeCoreTeamMemberData = async (
 export const getMemberCount = async () => {
     try {
         const totalCoreTeam = await coreTeam.countDocuments();
-        return  totalCoreTeam
-        
+        return totalCoreTeam
+
     } catch (error) {
-        return  null
+        return null
     }
 }
 
+export const getPaginatedTeam = async () => {
+    try {
+
+        const CoreTeam = await coreTeam.find();
+
+        return {
+            success: true,
+            data: CoreTeam
+        };
+
+    } catch (error) {
+
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
