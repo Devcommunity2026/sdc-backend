@@ -5,9 +5,34 @@ import { getPaginatedUsers } from "../services/userService.js";
 import { getPaginatedTeam } from "../services/coreTeamService.js"
 import { getPaginatedProjects } from "../services/projectService.js";
 import { getPaginatedEvents } from "../services/eventService.js";
+import { addApplicationData } from "../services/applicationService.js";
 import errorClass from "../utils/errorClass.js";
 
 
+export const handelApply = async (req, res, next) => {
+    try {
+
+        const result = await addApplicationData(req.body);
+
+        if (!result.success) {
+            return next(result.error);
+        }
+
+        res.status(201).json(result);
+
+    } catch (error) {
+
+        const err = new errorClass(
+            false,
+            500,
+            "Unable To Submit Application",
+            "Application submit failed",
+            error
+        );
+
+        next(err);
+    }
+};
 
 export const getCount = async (req, res, next) => {
     try {
