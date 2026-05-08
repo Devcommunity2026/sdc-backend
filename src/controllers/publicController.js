@@ -1,29 +1,13 @@
 import { getUsesCount } from "../services/userService.js";
-import { getMentorCount } from "../services/mentorService.js";
+import { getMentorCount, getPaginatedMentor } from "../services/mentorService.js";
 import { getMemberCount } from "../services/coreTeamService.js";
 import { getPaginatedUsers } from "../services/userService.js";
 import { getPaginatedTeam } from "../services/coreTeamService.js"
-import { getPaginatedMentor } from "../services/mentorService.js"
 import { getPaginatedProjects } from "../services/projectService.js";
 import { getPaginatedEvents } from "../services/eventService.js";
 import errorClass from "../utils/errorClass.js";
 
 
-export const getAccess = (req, res, next) => {
-    try {
-        const details = req.details
-        res.status(200).json({
-            success: true,
-            message: 'access provided'
-        })
-        logger.info(`userId:${req.details.userId} | Admin page access granted`)
-    } catch (error) {
-        logger.info(`userId:${req.details.userId} | Admin page access Denied`)
-
-        const err = new errorClass(false, 500, 'Something went wrong', `userId:${req.details.userId} Admin page access  failed`, error)
-        next(err)
-    }
-}
 
 export const getCount = async (req, res, next) => {
     try {
@@ -45,7 +29,7 @@ export const getCount = async (req, res, next) => {
             false,
             500,
             'Unable To Count',
-            `userId:${req.details.userId} get Count failed`,
+            `user get Count failed`,
             error
         );
 
@@ -71,7 +55,7 @@ export const getUsers = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Users',
-            `userId:${req.details.userId} fetch users failed`,
+            `user fetch users failed`,
             error
         );
 
@@ -96,7 +80,7 @@ export const getTeam = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Team',
-            `userId:${req.details.userId} fetch Team failed`,
+            `user fetch Team failed`,
             error
         );
 
@@ -121,7 +105,7 @@ export const getMentor = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Mentor',
-            `userId:${req.details.userId} fetch Mentor failed`,
+            `user fetch Mentor failed`,
             error
         );
 
@@ -144,7 +128,7 @@ export const getEvents = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Events',
-            `userId:${req.details.userId} fetch users failed`,
+            `user fetch users failed`,
             error
         );
 
@@ -170,7 +154,7 @@ export const getProjects = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Users',
-            `userId:${req.details.userId} fetch users failed`,
+            `user fetch users failed`,
             error
         );
 
