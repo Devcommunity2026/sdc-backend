@@ -29,3 +29,45 @@ export const deleteEventData = async (id, req, res, next) => {
         next(err)
     }
 }
+
+export const getPaginatedEvents = async (page = 1, limit = 10) => {
+    try {
+        const skip = (page - 1) * limit;
+
+        const events = await event.aggregate([
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ]);
+
+        const totalEvent = await event.countDocuments();
+
+        return {
+            success: true,
+            data: events,
+            pagination: {
+                total: totalEvent,
+                currentPage: page,
+                totalPages: Math.ceil(totalEvent / limit),
+                limit
+            }
+        };
+
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            "Something went wrong",
+            "Failed to fetch paginated Event",
+            error
+        );
+        return {
+            success: false,
+            data: null,
+            error: err
+        };
+    }
+};
