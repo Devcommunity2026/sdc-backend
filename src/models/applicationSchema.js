@@ -65,6 +65,12 @@ const applicationSchema = new mongoose.Schema(
 
     domain: {
       type: String,
+      enum: [
+        "Web Development",
+        "AI / Machine Learning",
+        "Cybersecurity",
+        "Mobile App Development",
+      ],
       required: true,
       trim: true,
     },
@@ -77,8 +83,8 @@ const applicationSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected"],
-      default: "pending",
+      enum: ["Applied", "On Hold", "Accepted", "Rejected"],
+      default: "Applied",
     },
   },
   {
