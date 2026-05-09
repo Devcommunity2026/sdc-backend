@@ -88,14 +88,27 @@ export const getMentorCount = async () => {
     }
 }
 
-export const getPaginatedMentor = async () => {
+export const getPaginatedMentor = async (page = 1, limit = 10) => {
     try {
 
-        const mentors = await mentor.find();
+        const skip = (page - 1) * limit;
+
+        const mentors = await mentor.find()
+            .skip(skip)
+            .limit(limit)
+            .sort({ cardPosition: 1 });
+
+        const totalMentors = await mentor.countDocuments();
 
         return {
             success: true,
-            data: mentors
+            data: mentors,
+            pagination: {
+                total: totalMentors,
+                currentPage: page,
+                totalPages: Math.ceil(totalMentors / limit),
+                limit
+            }
         };
 
     } catch (error) {
@@ -105,4 +118,4 @@ export const getPaginatedMentor = async () => {
             error: error
         };
     }
-}
+};

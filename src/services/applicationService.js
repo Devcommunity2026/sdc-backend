@@ -119,16 +119,13 @@ export const getApplicationCount = async () => {
 
 // ================= GET PAGINATED APPLICATIONS =================
 
-export const getPaginatedApplications = async (
-    page = 1,
-    limit = 10
-) => {
+export const getPaginatedApplications = async (page = 1, limit = 10, queryObject) => {
 
     try {
 
         const skip = (page - 1) * limit;
 
-        const applications = await Application.find()
+        const applications = await Application.find(queryObject)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
