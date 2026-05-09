@@ -83,7 +83,7 @@ const applicationSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Applied", "On Hold", "Accepted", "Rejected"],
+      enum: ["Applied", "On Hold", "Selected", "Rejected"],
       default: "Applied",
     },
   },

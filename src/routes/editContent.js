@@ -13,7 +13,7 @@ import {
     removeCoreTeamMember,
 
     addMentor,
-    removeMentor
+    removeMentor, editApplication
 
 } from "../controllers/editContent.js";
 
@@ -79,4 +79,6 @@ router.post(
     removeMentor
 );
 
+
+router.post('/application', editApplication)
 export default router;
