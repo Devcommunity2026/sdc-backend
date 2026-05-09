@@ -19,6 +19,7 @@ import {
     deleteProjectData
 } from "../services/projectService.js";
 
+import { updateApplication } from '../services/applicationService.js'
 
 // ================= ADD EVENT =================
 
@@ -283,3 +284,23 @@ export const removeMentor = async (
         next(err);
     }
 };
+
+
+// ================Application======================
+export const editApplication = async (req, res, next) => {
+    try {
+        const id = req.body.id
+        const status = req.body.status
+        return await updateApplication(id, status, req, res, next)
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            "Unable To Edit Application",
+            `userId:${req.details.userId} edit application failed`,
+            error
+        );
+
+        next(err);
+    }
+}

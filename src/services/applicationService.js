@@ -193,3 +193,50 @@ export const getSingleApplication = async (id) => {
 };
 
 
+export const updateApplication = async (
+    id,
+    status,
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const application = await Application.findOneAndUpdate(
+            { _id: id },
+            { $set: { status } },
+            { new: true }
+        );
+
+        if (!application) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Application Not Found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Application Updated Successfully",
+            data: application
+        });
+
+        logger.info(
+            `userId:${req.details.userId} | updated application ${id}`
+        );
+
+    } catch (error) {
+
+        const err = new errorClass(
+            false,
+            500,
+            "Unable To Update Application",
+            `userId:${req.details.userId} update application failed`,
+            error
+        );
+
+        next(err);
+    }
+};
