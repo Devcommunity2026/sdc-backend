@@ -1,12 +1,11 @@
 import errorClass from "../utils/errorClass.js";
 import { getUserDetailsByEmail } from '../services/userService.js'
 import { decodeToken } from "../controllers/jwtController.js";
-
+import logger from "../config/logger.js";
 const roleMiddleware = (role) => {
     return async (req, res, next,) => {
         try {
             const userToken = req.cookies?.token;
-
             if (!userToken) {
                 return res.status(401).json({
                     success: false,
@@ -15,7 +14,6 @@ const roleMiddleware = (role) => {
             }
 
             const decodedData = await decodeToken(userToken);
-
             if (!decodedData.success) {
                 return res.status(401).json({
                     success: false,

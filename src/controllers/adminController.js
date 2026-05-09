@@ -24,18 +24,17 @@ export const editRole = async (req, res, next) => {
         const details = req.details
         const role = req.body.role
         const email = req.body.email
-        const roleDescription = req.body.roleDescription
 
-        if (!(["admin", "moderator", "mentor", "team", "user"].includes(role))) {
+        if (!(["admin", "moderator", "user"].includes(role))) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid Input"
             });
         }
-        
+
         logger.info(email)
 
-        if (!email || (role != "user" && roleDescription.length == 0)) {
+        if (!email) {
             return res.status(400).json({
                 success: false,
                 message: "please Enter Valid Input"
@@ -43,23 +42,18 @@ export const editRole = async (req, res, next) => {
         }
 
         if (email === process.env.OWNER_EMAIL) {
+            logger.info(`userId:${req.details.userId} | Try to edit owner role`);
 
-            logger.info(`userId:${req.details.userId} | Try to edited the role of owner`)
-            return res.status(400).json({
+            return res.json({
                 success: false,
-                message: "something went wrong"
+                message: "You are not allowed to modify the owner account"
             });
         }
-        if (roleDescription.length > 200) {
-            return res.status(400).json({
-                success: false,
-                message: "Role Description is Too Long"
-            });
-        }
+
 
         const updatedData = await editDetailsByEmail(email, {
             role: role,
-            roleDescription: (role === "user") ? "" : roleDescription
+            roleDescription: (["admin", "moderator", "user"].includes(role)) ? "" : roleDescription
         })
 
         if (!updatedData.success) {

@@ -116,7 +116,10 @@ export const getTeam = async (req, res, next) => {
 export const getMentor = async (req, res, next) => {
     try {
 
-        const result = await getPaginatedMentor();
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+
+        const result = await getPaginatedMentor(page, limit);
 
         if (!result.success) {
             return next(result.error);
@@ -130,7 +133,7 @@ export const getMentor = async (req, res, next) => {
             false,
             500,
             'Unable To Fetch Mentor',
-            `user fetch Mentor failed`,
+            'user fetch Mentor failed',
             error
         );
 
