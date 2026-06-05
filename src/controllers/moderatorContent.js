@@ -6,10 +6,12 @@ import { getPaginatedTeam } from "../services/coreTeamService.js"
 import { getPaginatedMentor } from "../services/mentorService.js"
 import { getPaginatedProjects } from "../services/projectService.js";
 import { getPaginatedEvents } from "../services/eventService.js";
+import { getPaginatedBlogs } from "../services/blogService.js";
 import { getPaginatedApplications } from "../services/applicationService.js";
+import Setting from "../models/settingSchema.js";
 import errorClass from "../utils/errorClass.js";
 import { Query } from "mongoose";
-
+import logger from "../config/logger.js";
 
 export const getAccess = (req, res, next) => {
     try {
@@ -231,6 +233,80 @@ export const getApplication = async (req, res, next) => {
             500,
             "Unable To Fetch Applications",
             `userId:${req.details.userId} fetch Applications failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getBlogs = async (req, res, next) => {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const result = await getPaginatedBlogs(page, limit);
+
+        if (!result.success) {
+            return next(result.error);
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Blogs',
+            `userId:${req.details.userId} fetch blogs failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getRegistrationStatus = async (req, res, next) => {
+    try {
+        const setting = await Setting.findOne({ key: "registrationOpen" });
+        const isOpen = setting ? setting.value : true;
+
+        res.status(200).json({
+            success: true,
+            registrationOpen: isOpen
+        });
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Registration Status',
+            `userId:${req.details.userId} fetch registration status failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const setRegistrationStatus = async (req, res, next) => {
+    try {
+        const { open } = req.body;
+        
+        await Setting.findOneAndUpdate(
+            { key: "registrationOpen" },
+            { value: open },
+            { upsert: true, new: true }
+        );
+
+        res.status(200).json({
+            success: true,
+            message: `Registration turned ${open ? "ON" : "OFF"} successfully`
+        });
+        
+        logger.info(`userId:${req.details.userId} | updated registrationOpen to ${open}`);
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Update Registration Status',
+            `userId:${req.details.userId} update registration status failed`,
             error
         );
 

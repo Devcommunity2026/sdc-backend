@@ -13,7 +13,10 @@ import {
     removeCoreTeamMember,
 
     addMentor,
-    removeMentor, editApplication
+    removeMentor, editApplication,
+
+    addBlog,
+    deleteBlog
 
 } from "../controllers/editContent.js";
 
@@ -26,11 +29,7 @@ router.use(roleMiddleware(['moderator', 'admin']));
 
 // ================= EVENT =================
 
-router.post(
-    '/addEvent',
-    imageParser.single('image'),
-    addEvent
-);
+router.post('/addEvent', imageParser.single('image'), addEvent);
 
 router.post(
     '/removeEvent',
@@ -68,15 +67,23 @@ router.post(
 
 // ================= MENTOR =================
 
-router.post(
-    '/addMentor',
-    imageParser.single('image'),
+router.post('/addMentor', imageParser.single('image'),
     addMentor
 );
 
 router.post(
     '/removeMentor',
     removeMentor
+);
+
+
+// ================= BLOG =================
+
+router.post('/addBlog', imageParser.single('image'), addBlog);
+
+router.post(
+    '/removeBlog',
+    deleteBlog
 );
 
 

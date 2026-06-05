@@ -19,6 +19,11 @@ import {
     deleteProjectData
 } from "../services/projectService.js";
 
+import {
+    addBlogData,
+    deleteBlogData
+} from "../services/blogService.js";
+
 import { updateApplication } from '../services/applicationService.js'
 
 // ================= ADD EVENT =================
@@ -304,3 +309,63 @@ export const editApplication = async (req, res, next) => {
         next(err);
     }
 }
+
+// ================= ADD BLOG =================
+
+export const addBlog = async (req, res, next) => {
+    try {
+        const userData = req.body;
+
+        const data = {
+            title: userData.title,
+            subHeading: userData.subHeading,
+            subtitle: userData.subtitle || userData.subHeading,
+            description: userData.description,
+            formattedContent: userData.formattedContent || userData.description,
+            author: userData.author,
+            readTime: userData.readTime || "5 min read",
+            tags: userData.tags ? userData.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+            date: userData.date ? new Date(userData.date) : new Date(),
+            createdAt: new Date(),
+            thumbnail: req.file.path
+        };
+
+        return await addBlogData(data, req, res, next);
+
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Add Blog',
+            `userId:${req.details.userId} add Blog failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+
+// ================= DELETE BLOG =================
+
+export const deleteBlog = async (req, res, next) => {
+    try {
+        return await deleteBlogData(
+            req.body.id,
+            req,
+            res,
+            next
+        );
+
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Delete Blog',
+            `userId:${req.details.userId} delete Blog failed`,
+            error
+        );
+
+        next(err);
+    }
+};

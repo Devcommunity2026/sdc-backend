@@ -9,11 +9,22 @@ const blogSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    subtitle: {
+        type: String
+    },
     date: {
         type: Date,
+        default: Date.now
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    author: {
+        type: String,
         required: true
     },
-    form: {
+    readTime: {
         type: String,
         required: true
     },
@@ -24,8 +35,15 @@ const blogSchema = mongoose.Schema({
     description: {
         type: String,
         required: true
+    },
+    formattedContent: {
+        type: String
+    },
+    tags: {
+        type: [String],
+        default: []
     }
 })
 
-const event = mongoose.model("Event", blogSchema)
-export default event
+const Blog = mongoose.model("Blog", blogSchema)
+export default Blog

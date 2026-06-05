@@ -5,7 +5,9 @@ import { getPaginatedUsers } from "../services/userService.js";
 import { getPaginatedTeam } from "../services/coreTeamService.js"
 import { getPaginatedProjects } from "../services/projectService.js";
 import { getPaginatedEvents } from "../services/eventService.js";
+import { getPaginatedBlogs } from "../services/blogService.js";
 import { addApplicationData } from "../services/applicationService.js";
+import Setting from "../models/settingSchema.js";
 import errorClass from "../utils/errorClass.js";
 
 
@@ -183,6 +185,51 @@ export const getProjects = async (req, res, next) => {
             500,
             'Unable To Fetch Users',
             `user fetch users failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getBlogs = async (req, res, next) => {
+    try {
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const result = await getPaginatedBlogs(page, limit);
+
+        if (!result.success) {
+            return next(result.error);
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Blogs',
+            `user fetch blogs failed`,
+            error
+        );
+
+        next(err);
+    }
+};
+
+export const getPublicRegistrationStatus = async (req, res, next) => {
+    try {
+        const setting = await Setting.findOne({ key: "registrationOpen" });
+        const isOpen = setting ? setting.value : true;
+
+        res.status(200).json({
+            success: true,
+            registrationOpen: isOpen
+        });
+    } catch (error) {
+        const err = new errorClass(
+            false,
+            500,
+            'Unable To Fetch Registration Status',
+            `fetch registration status failed`,
             error
         );
 
