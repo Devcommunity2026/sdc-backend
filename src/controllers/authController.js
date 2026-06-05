@@ -111,6 +111,28 @@ export const loginUser = async (req, res, next) => {
     }
 }
 
+export const logOutUser = async (req, res, next) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: "lax"
+        });
+        res.clearCookie("passToken", {
+            httpOnly: true,
+            sameSite: "lax"
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Logout successful"
+        });
+    } catch (error) {
+        const err = new errorClass(false, 500, 'Unable to logout', 'User logout failed', error)
+        next(err)
+    }
+}
+
+
 export const forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body

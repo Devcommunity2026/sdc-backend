@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser, verifyUser, loginUser, changePassword, forgotPassword, verifyOTP }
+import { registerUser, verifyUser, loginUser, changePassword, forgotPassword, verifyOTP, logOutUser }
     from '../controllers/authController.js';
 
 const router = express.Router()
@@ -22,5 +22,7 @@ router.post('/verifyOTP', verifyOTP)
 // -----------/auth/changePassword------------
 router.post('/changePassword', changePassword)
 
+// -----------/auth/logout------------
+router.post('/logout', logOutUser)
 
 export default router
